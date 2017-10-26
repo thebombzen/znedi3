@@ -244,17 +244,17 @@ inline FORCE_INLINE void prescreener_old_layer1_avx(const float kernel[4][4], co
 			__m256 x2 = _mm256_load_ps(activation + 2 * activation_stride_f + i);
 			__m256 x3 = _mm256_load_ps(activation + 3 * activation_stride_f + i);
 
-			__m256 accum0 = _mm256_fmadd_ps(n0_c0, x0, bias0);
-			__m256 accum1 = _mm256_fmadd_ps(n1_c0, x0, bias1);
+			__m256 accum0 = mm256_fmadd_ps(n0_c0, x0, bias0);
+			__m256 accum1 = mm256_fmadd_ps(n1_c0, x0, bias1);
 
-			accum0 = _mm256_fmadd_ps(n0_c1, x1, accum0);
-			accum1 = _mm256_fmadd_ps(n1_c1, x1, accum1);
+			accum0 = mm256_fmadd_ps(n0_c1, x1, accum0);
+			accum1 = mm256_fmadd_ps(n1_c1, x1, accum1);
 
-			accum0 = _mm256_fmadd_ps(n0_c2, x2, accum0);
-			accum1 = _mm256_fmadd_ps(n1_c2, x2, accum1);
+			accum0 = mm256_fmadd_ps(n0_c2, x2, accum0);
+			accum1 = mm256_fmadd_ps(n1_c2, x2, accum1);
 
-			accum0 = _mm256_fmadd_ps(n0_c3, x3, accum0);
-			accum1 = _mm256_fmadd_ps(n1_c3, x3, accum1);
+			accum0 = mm256_fmadd_ps(n0_c3, x3, accum0);
+			accum1 = mm256_fmadd_ps(n1_c3, x3, accum1);
 
 			accum0 = mm256_elliott_ps(accum0);
 			accum1 = mm256_elliott_ps(accum1);
