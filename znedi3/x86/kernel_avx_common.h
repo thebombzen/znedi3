@@ -41,6 +41,15 @@
   #define mm256_fnmadd_pd(a, b, c) _mm256_sub_pd(c, _mm256_mul_pd(a, b))
 #endif
 
+#ifndef _mm256_set_m128i
+	#define _mm256_set_m128i(v0, v1)  _mm256_insertf128_si256(_mm256_castsi128_si256(v1), (v0), 1)
+#endif
+
+#ifndef _mm256_setr_m128i
+	#define _mm256_setr_m128i(v0, v1) _mm256_set_m128i((v1), (v0))
+#endif
+
+
 namespace znedi3 {
 namespace {
 
@@ -128,6 +137,26 @@ inline FORCE_INLINE __m256 mm256_elliott_ps(__m256 x)
 	return _mm256_mul_ps(x, mm256_rcp24_ps(den));
 }
 
+inline FORCE_INLINE __m256i _mm256_alignr_epi8_avx(const __m256i v0, const __m256i v1, const int n)
+{
+	if (n < 16) {
+		__m128i v0h = _mm256_extractf128_si256(v0, 0);
+		__m128i v0l = _mm256_extractf128_si256(v0, 1);
+		__m128i v1h = _mm256_extractf128_si256(v1, 0);
+		__m128i vouth = _mm_alignr_epi8(v0l, v0h, n);
+		__m128i voutl = _mm_alignr_epi8(v1h, v0l, n);
+		__m256i vout = _mm256_set_m128i(voutl, vouth);
+		return vout;
+	} else {
+		__m128i v0h = _mm256_extractf128_si256(v0, 1);
+		__m128i v0l = _mm256_extractf128_si256(v1, 0);
+		__m128i v1h = _mm256_extractf128_si256(v1, 1);
+		__m128i vouth = _mm_alignr_epi8(v0l, v0h, n - 16);
+		__m128i voutl = _mm_alignr_epi8(v1h, v0l, n - 16);
+		__m256i vout = _mm256_set_m128i(voutl, vouth);
+		return vout;
+	}
+}
 
 inline FORCE_INLINE void prescreener_old_layer0_avx(const float kernel[4][48], const float bias[4], const float *window, ptrdiff_t src_stride,
                                                     float *activation, ptrdiff_t activation_stride, unsigned n)
@@ -162,9 +191,9 @@ inline FORCE_INLINE void prescreener_old_layer0_avx(const float kernel[4][48], c
 				__m256 x0 = _mm256_loadu_ps(window_p + i + kk);
 				__m256 x4 = _mm256_loadu_ps(window_p + i + kk + 4);
 
-				__m256 x1 = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(x4), _mm256_castps_si256(x0), 4));
-				__m256 x2 = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(x4), _mm256_castps_si256(x0), 8));
-				__m256 x3 = _mm256_castsi256_ps(_mm256_alignr_epi8(_mm256_castps_si256(x4), _mm256_castps_si256(x0), 12));
+				__m256 x1 = _mm256_castsi256_ps(_mm256_alignr_epi8_avx(_mm256_castps_si256(x4), _mm256_castps_si256(x0), 4));
+				__m256 x2 = _mm256_castsi256_ps(_mm256_alignr_epi8_avx(_mm256_castps_si256(x4), _mm256_castps_si256(x0), 8));
+				__m256 x3 = _mm256_castsi256_ps(_mm256_alignr_epi8_avx(_mm256_castps_si256(x4), _mm256_castps_si256(x0), 12));
 
 				__m256 accum0 = _mm256_load_ps(activation + 0 * activation_stride_f + i);
 				__m256 accum1 = _mm256_load_ps(activation + 1 * activation_stride_f + i);
