@@ -33,7 +33,7 @@ $(SSE_OBJ):
 	$(CXX) -c -msse $(CXXFLAGS) -o $*.o $*.cpp
 
 $(SSE2_OBJ):
-	$(CXX) -c -msse -msse2 $(CXXFLAGS) -o $*.o $*.cpp
+	$(CXX) -c -msse2 $(CXXFLAGS) -o $*.o $*.cpp
 
 $(F16C_OBJ):
 	$(CXX) -c -mf16c $(CXXFLAGS) -o $*.o $*.cpp
@@ -45,7 +45,7 @@ $(AVX2_OBJ):
 	$(CXX) -c -DUSE_FMA=1 -mavx2 -mfma $(CXXFLAGS) -o $*.o $*.cpp
 
 $(AVX512_OBJ):
-	$(CXX) -c -DUSE_FMA=1 -DZNEDI3_X86_AVX512 -mfma -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq $(CXXFLAGS) -o $*.o $*.cpp
+	$(CXX) -c -DUSE_FMA=1 -DZNEDI3_X86_AVX512 -mfma -mavx512f -mavx512dq -mavx512bw $(CXXFLAGS) -o $*.o $*.cpp
 
 install: libznedi3.$(LIBEXT) nnedi3_weights.bin
 	install -c -d $(PREFIX)/lib/vapoursynth
